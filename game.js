@@ -19,6 +19,44 @@ const ball = {
 
 const keys = {};
 
+const BLOCK_COLS = 8;
+const BLOCK_ROWS = 6;
+const BLOCK_W = 56;
+const BLOCK_H = 20;
+const BLOCK_TOP_MARGIN = 40;
+const BLOCK_LEFT_MARGIN = ( canvas.width - BLOCK_COLS * BLOCK_W ) / 2;
+
+const ROW_COLORS = [ 'red', 'hotpink', 'magenta', 'yellow', 'green', 'cyan' ];
+
+const POINTS_BY_COLOR = {
+  gray: 10, cyan: 20, green: 30, yellow: 40, magenta: 50, hotpink: 60, red: 70,
+};
+
+function createBlocks() {
+  const blocks = [];
+  for ( let row = 0; row < BLOCK_ROWS; row++ ) {
+    const color = ROW_COLORS[ row ];
+    for ( let col = 0; col < BLOCK_COLS; col++ ) {
+      blocks.push( {
+        x: BLOCK_LEFT_MARGIN + col * BLOCK_W,
+        y: BLOCK_TOP_MARGIN + row * BLOCK_H,
+        w: BLOCK_W, h: BLOCK_H,
+        color, points: POINTS_BY_COLOR[ color ],
+        alive: true,
+      } );
+    }
+  }
+  state.blocks = blocks;
+}
+
+function drawBlocks() {
+  state.blocks.forEach( ( block ) => {
+    if ( block.alive ) {
+      drawSprite( ctx, `block_${ block.color }`, block.x, block.y, block.w, block.h );
+    }
+  } );
+}
+
 const sounds = {
   bounce: new Audio( 'assets/sounds/ball-bounce.mp3' ),
 };
@@ -83,6 +121,7 @@ function moveBall() {
 function drawPlayingScreen() {
   ctx.fillStyle = '#000';
   ctx.fillRect( 0, 0, canvas.width, canvas.height );
+  drawBlocks();
   movePaddle();
   drawSprite( ctx, 'paddle', paddle.x, paddle.y, paddle.w, paddle.h );
   moveBall();
@@ -115,6 +154,7 @@ window.addEventListener( 'keydown', ( e ) => {
   keys[ e.key ] = true;
   if ( state.screen === 'START' ) {
     state.screen = 'PLAYING';
+    createBlocks();
   }
 } );
 
