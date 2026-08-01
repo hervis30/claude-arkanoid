@@ -19,6 +19,15 @@ const ball = {
 
 const keys = {};
 
+const sounds = {
+  bounce: new Audio( 'assets/sounds/ball-bounce.mp3' ),
+};
+
+function playBounceSound() {
+  sounds.bounce.currentTime = 0;
+  sounds.bounce.play().catch( () => {} );
+}
+
 function movePaddle() {
   if ( ( keys[ 'ArrowLeft' ] || keys[ 'a' ] || keys[ 'A' ] ) ) {
     paddle.x -= paddle.speed;
@@ -30,21 +39,44 @@ function movePaddle() {
   if ( paddle.x + paddle.w > canvas.width ) paddle.x = canvas.width - paddle.w;
 }
 
+const MAX_BOUNCE_ANGLE = Math.PI / 3; // 60 grados
+
 function moveBall() {
+  const prevY = ball.y;
+
   ball.x += ball.vx;
   ball.y += ball.vy;
 
   if ( ball.x - ball.radius < 0 ) {
     ball.x = ball.radius;
     ball.vx = -ball.vx;
+    playBounceSound();
   } else if ( ball.x + ball.radius > canvas.width ) {
     ball.x = canvas.width - ball.radius;
     ball.vx = -ball.vx;
+    playBounceSound();
   }
 
   if ( ball.y - ball.radius < 0 ) {
     ball.y = ball.radius;
     ball.vy = -ball.vy;
+    playBounceSound();
+  }
+
+  const crossedPaddleTop = ball.vy > 0 && prevY + ball.radius <= paddle.y && ball.y + ball.radius >= paddle.y;
+  const withinPaddleX = ball.x + ball.radius >= paddle.x && ball.x - ball.radius <= paddle.x + paddle.w;
+
+  if ( crossedPaddleTop && withinPaddleX ) {
+    ball.y = paddle.y - ball.radius;
+
+    const speed = Math.hypot( ball.vx, ball.vy );
+    const hitPos = ( ball.x - ( paddle.x + paddle.w / 2 ) ) / ( paddle.w / 2 );
+    const clampedHitPos = Math.max( -1, Math.min( 1, hitPos ) );
+    const angle = clampedHitPos * MAX_BOUNCE_ANGLE;
+
+    ball.vx = speed * Math.sin( angle );
+    ball.vy = -speed * Math.cos( angle );
+    playBounceSound();
   }
 }
 
