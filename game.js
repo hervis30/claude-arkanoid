@@ -266,11 +266,22 @@ function loop() {
   requestAnimationFrame( loop );
 }
 
+function resetGame() {
+  state.score = 0;
+  state.lives = 3;
+  state.blocks = [];
+  paddle.x = 195;
+  resetBall();
+  state.screen = 'START';
+}
+
 window.addEventListener( 'keydown', ( e ) => {
   keys[ e.key ] = true;
   if ( state.screen === 'START' ) {
     state.screen = 'PLAYING';
     createBlocks();
+  } else if ( state.screen === 'GAME_OVER' || state.screen === 'VICTORY' ) {
+    resetGame();
   }
 } );
 
