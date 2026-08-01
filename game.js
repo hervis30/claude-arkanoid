@@ -174,6 +174,18 @@ function moveBall() {
   }
 
   checkBlockCollision();
+
+  if ( ball.y - ball.radius > canvas.height ) {
+    state.lives -= 1;
+    resetBall();
+  }
+}
+
+function resetBall() {
+  ball.x = paddle.x + paddle.w / 2;
+  ball.y = paddle.y - ball.radius;
+  ball.vx = 3;
+  ball.vy = -3;
 }
 
 function drawPlayingScreen() {
@@ -185,6 +197,13 @@ function drawPlayingScreen() {
   moveBall();
   drawSprite( ctx, 'ball', ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2 );
   drawExplosions();
+
+  ctx.fillStyle = '#fff';
+  ctx.font = '16px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText( `Vidas: ${ state.lives }`, 10, 20 );
+  ctx.textAlign = 'right';
+  ctx.fillText( `Puntos: ${ state.score }`, canvas.width - 10, 20 );
 }
 
 function drawStartScreen() {
