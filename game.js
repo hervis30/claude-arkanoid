@@ -196,6 +196,14 @@ function resetBall() {
   ball.vy = -3;
 }
 
+function drawLives() {
+  const size = 16;
+  const gap = 6;
+  for ( let i = 0; i < state.lives; i++ ) {
+    drawSprite( ctx, 'ball', 10 + i * ( size + gap ), 10, size, size );
+  }
+}
+
 function drawPlayingScreen() {
   ctx.fillStyle = '#000';
   ctx.fillRect( 0, 0, canvas.width, canvas.height );
@@ -206,10 +214,10 @@ function drawPlayingScreen() {
   drawSprite( ctx, 'ball', ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2 );
   drawExplosions();
 
+  drawLives();
+
   ctx.fillStyle = '#fff';
   ctx.font = '16px sans-serif';
-  ctx.textAlign = 'left';
-  ctx.fillText( `Vidas: ${ state.lives }`, 10, 20 );
   ctx.textAlign = 'right';
   ctx.fillText( `Puntos: ${ state.score }`, canvas.width - 10, 20 );
 }
