@@ -59,11 +59,67 @@ function drawBlocks() {
 
 const sounds = {
   bounce: new Audio( 'assets/sounds/ball-bounce.mp3' ),
+  break: new Audio( 'assets/sounds/break-sound.mp3' ),
 };
 
 function playBounceSound() {
   sounds.bounce.currentTime = 0;
   sounds.bounce.play().catch( () => {} );
+}
+
+function playBreakSound() {
+  sounds.break.currentTime = 0;
+  sounds.break.play().catch( () => {} );
+}
+
+const explosions = [];
+
+function spawnExplosion( block ) {
+  explosions.push( {
+    color: block.color,
+    x: block.x, y: block.y, w: block.w, h: block.h,
+    start: performance.now(),
+  } );
+}
+
+function drawExplosions() {
+  const now = performance.now();
+  for ( let i = explosions.length - 1; i >= 0; i-- ) {
+    const explosion = explosions[ i ];
+    const elapsed = now - explosion.start;
+    if ( elapsed >= EXPLOSION_DURATION ) {
+      explosions.splice( i, 1 );
+      continue;
+    }
+    const frames = EXPLOSION_FRAMES[ explosion.color ];
+    const frameIndex = Math.min( frames.length - 1, Math.floor( elapsed / ( EXPLOSION_DURATION / frames.length ) ) );
+    drawFrame( ctx, frames[ frameIndex ], explosion.x, explosion.y, explosion.w, explosion.h );
+  }
+}
+
+function checkBlockCollision() {
+  for ( const block of state.blocks ) {
+    if ( !block.alive ) continue;
+
+    const closestX = Math.max( block.x, Math.min( ball.x, block.x + block.w ) );
+    const closestY = Math.max( block.y, Math.min( ball.y, block.y + block.h ) );
+    const dx = ball.x - closestX;
+    const dy = ball.y - closestY;
+
+    if ( ( dx * dx + dy * dy ) < ball.radius * ball.radius ) {
+      block.alive = false;
+      state.score += block.points;
+      spawnExplosion( block );
+      playBreakSound();
+
+      if ( Math.abs( dx ) > Math.abs( dy ) ) {
+        ball.vx = -ball.vx;
+      } else {
+        ball.vy = -ball.vy;
+      }
+      break;
+    }
+  }
 }
 
 function movePaddle() {
@@ -116,6 +172,8 @@ function moveBall() {
     ball.vy = -speed * Math.cos( angle );
     playBounceSound();
   }
+
+  checkBlockCollision();
 }
 
 function drawPlayingScreen() {
@@ -126,6 +184,7 @@ function drawPlayingScreen() {
   drawSprite( ctx, 'paddle', paddle.x, paddle.y, paddle.w, paddle.h );
   moveBall();
   drawSprite( ctx, 'ball', ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2 );
+  drawExplosions();
 }
 
 function drawStartScreen() {
