@@ -117,6 +117,10 @@ function checkBlockCollision() {
       } else {
         ball.vy = -ball.vy;
       }
+
+      if ( state.blocks.every( ( b ) => !b.alive ) ) {
+        state.screen = 'VICTORY';
+      }
       break;
     }
   }
@@ -232,6 +236,19 @@ function drawGameOverScreen() {
   ctx.fillText( 'Pulsa una tecla para reiniciar', canvas.width / 2, canvas.height / 2 + 40 );
 }
 
+function drawVictoryScreen() {
+  ctx.fillStyle = '#000';
+  ctx.fillRect( 0, 0, canvas.width, canvas.height );
+  ctx.fillStyle = '#fff';
+  ctx.textAlign = 'center';
+  ctx.font = '28px sans-serif';
+  ctx.fillText( '¡Victoria!', canvas.width / 2, canvas.height / 2 - 20 );
+  ctx.font = '18px sans-serif';
+  ctx.fillText( `Puntuación final: ${ state.score }`, canvas.width / 2, canvas.height / 2 + 10 );
+  ctx.font = '16px sans-serif';
+  ctx.fillText( 'Pulsa una tecla para reiniciar', canvas.width / 2, canvas.height / 2 + 40 );
+}
+
 function update() {
   if ( state.screen === 'START' ) {
     drawStartScreen();
@@ -239,6 +256,8 @@ function update() {
     drawPlayingScreen();
   } else if ( state.screen === 'GAME_OVER' ) {
     drawGameOverScreen();
+  } else if ( state.screen === 'VICTORY' ) {
+    drawVictoryScreen();
   }
 }
 
