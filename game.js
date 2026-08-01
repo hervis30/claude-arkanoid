@@ -12,6 +12,11 @@ const paddle = {
   x: 195, y: 570, w: 90, h: 14, speed: 6,
 };
 
+const ball = {
+  x: 240, y: 560, radius: 8,
+  vx: 3, vy: -3,
+};
+
 const keys = {};
 
 function movePaddle() {
@@ -25,11 +30,31 @@ function movePaddle() {
   if ( paddle.x + paddle.w > canvas.width ) paddle.x = canvas.width - paddle.w;
 }
 
+function moveBall() {
+  ball.x += ball.vx;
+  ball.y += ball.vy;
+
+  if ( ball.x - ball.radius < 0 ) {
+    ball.x = ball.radius;
+    ball.vx = -ball.vx;
+  } else if ( ball.x + ball.radius > canvas.width ) {
+    ball.x = canvas.width - ball.radius;
+    ball.vx = -ball.vx;
+  }
+
+  if ( ball.y - ball.radius < 0 ) {
+    ball.y = ball.radius;
+    ball.vy = -ball.vy;
+  }
+}
+
 function drawPlayingScreen() {
   ctx.fillStyle = '#000';
   ctx.fillRect( 0, 0, canvas.width, canvas.height );
   movePaddle();
   drawSprite( ctx, 'paddle', paddle.x, paddle.y, paddle.w, paddle.h );
+  moveBall();
+  drawSprite( ctx, 'ball', ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2 );
 }
 
 function drawStartScreen() {
